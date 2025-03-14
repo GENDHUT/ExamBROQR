@@ -1,10 +1,11 @@
-// index.tsx (versi tanpa NavigationContainer untuk Expo Router)
+// app/(tabs)/index.tsx 
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../qr/HomeScreen';
 import BarcodeScannerScreen from '../qr/BarcodeScannerScreen';
 import CameraScreen from '../qr/CameraScreen';
 import WebViewScreen from '../qr/WebViewScreen';
+
 
 export type RootStackParamList = {
   Home: undefined;
