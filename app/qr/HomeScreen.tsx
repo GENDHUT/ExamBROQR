@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../(tabs)/index'; // Pastikan path-nya sudah benar
+import { RootStackParamList } from '../(tabs)/index';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -13,7 +13,7 @@ const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Button
-        title="Scan Barcode"
+        title="Scan Barcode Ujian"
         onPress={() => navigation.navigate('BarcodeScanner')}
       />
     </View>
