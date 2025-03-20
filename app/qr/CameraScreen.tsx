@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Linking } from 'react-native';
 import { Camera, useCameraPermissions, CameraType } from 'expo-camera';
 
 const CameraScreen: React.FC = () => {
@@ -18,6 +18,7 @@ const CameraScreen: React.FC = () => {
           We need your permission to show the camera
         </Text>
         <Button onPress={requestPermission} title="Grant Permission" />
+        <Button title="Open Settings" onPress={() => Linking.openSettings()} />
       </View>
     );
   }

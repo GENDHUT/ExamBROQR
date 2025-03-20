@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Alert } from 'react-native';
+import { View, Text, StyleSheet, Button, Alert, Linking } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -40,10 +40,12 @@ const BarcodeScannerScreen: React.FC = () => {
       </View>
     );
   }
+  
   if (hasPermission === false) {
     return (
       <View style={styles.center}>
         <Text>No access to camera</Text>
+        <Button title="Open Settings" onPress={() => Linking.openSettings()} />
       </View>
     );
   }
