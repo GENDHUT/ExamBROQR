@@ -1,19 +1,20 @@
 // AppStateHandler.tsx
 import React, { useEffect } from 'react';
 import { AppState } from 'react-native';
-import { resetToHome } from './RootNavigation';
+import { router } from 'expo-router';
 
-const AppStateHandler: React.FC = () => {
+const AppStateHandler = () => {
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      console.log('AppState changed to:', nextAppState);
-      if (nextAppState === 'active') {
-        resetToHome();
+    const sub = AppState.addEventListener("change", (state) => {
+      console.log("AppState:", state);
+
+      if (state === "active") {
+        // Saat aplikasi kembali dari background → pindah ke Home
+        router.replace("/");
       }
     });
-    return () => {
-      subscription.remove();
-    };
+
+    return () => sub.remove();
   }, []);
 
   return null;
