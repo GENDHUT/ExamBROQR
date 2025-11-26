@@ -15,6 +15,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
     npx expo start
    ```
+   -If you using usb debug
+    ```bash
+    adb reverse tcp:8081 tcp:8081
+    npx expo start
+   ```
+   adb reverse tcp:8081 tcp:8081
+
 
 In the output, you'll find options to open the app in a
 
