@@ -6,7 +6,7 @@ export default function LiveKitWebView() {
   return (
     <View style={styles.container}>
       <WebView
-        source={{ uri: "https://meet.livekit.io/?tab=custom" }}
+        source={{ uri: "https://be-exam-livekit.vercel.app/" }}
         style={{ flex: 1 }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
