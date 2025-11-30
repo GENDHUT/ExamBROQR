@@ -1,5 +1,5 @@
 // src/qr/WebViewScreen.tsx
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   StatusBar,
   BackHandler,
   Modal,
+  PanResponder,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import {
@@ -19,7 +20,6 @@ import {
 } from "@react-navigation/native";
 import { RootStackParamList } from "../(tabs)/index";
 import Immersive from "react-native-immersive";
-import { PanGestureHandler } from "react-native-gesture-handler";
 
 type WebViewScreenProps = StackScreenProps<RootStackParamList, "WebView">;
 
@@ -30,22 +30,52 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Flash modal super cepat (100 ms)
+  // ======================================
+  // 🔥 ULTRA FAST WARNING (EMPTY MODAL)
+  // ======================================
   const showWarning = () => {
     setModalVisible(true);
-    setTimeout(() => setModalVisible(false), 20);
+    setTimeout(() => setModalVisible(false), 10); // super cepat
   };
 
-  // Lock immersive function (lebih kuat & cepat)
-  const forceImmersive = () => {
-    if (Platform.OS === "android") {
-      Immersive.on();
-      Immersive.setImmersive(true);
-      StatusBar.setHidden(true);
-    }
-  };
+  // ======================================================
+  // 🔥 TOP & BOTTOM SHIELD (ANTI SWIPE SEBELUM OS BACA)
+  // ======================================================
+  const topShield = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: () => {
+        Immersive.on();
+        Immersive.setImmersive(true);
+        showWarning();
+      },
+      onPanResponderRelease: () => {
+        Immersive.on();
+        Immersive.setImmersive(true);
+      },
+    })
+  ).current;
 
-  // Hide tab bar
+  const bottomShield = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: () => {
+        Immersive.on();
+        Immersive.setImmersive(true);
+        showWarning();
+      },
+      onPanResponderRelease: () => {
+        Immersive.on();
+        Immersive.setImmersive(true);
+      },
+    })
+  ).current;
+
+  // ==========================================
+  // HIDE TAB BAR
+  // ==========================================
   useLayoutEffect(() => {
     const parent = navigation.getParent();
     if (parent) parent.setOptions({ tabBarStyle: { display: "none" } });
@@ -54,19 +84,24 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
     };
   }, [navigation]);
 
+  // ================================================
+  // IMMERSIVE SUPER LOCK 30ms
+  // ================================================
   useEffect(() => {
     let immersiveInterval: NodeJS.Timer;
 
     if (Platform.OS === "android") {
-      // Awal masuk layar → langsung full immersive
-      forceImmersive();
+      Immersive.on();
+      Immersive.setImmersive(true);
+      StatusBar.setHidden(true);
 
-      // Interval super cepat (30ms)
       immersiveInterval = setInterval(() => {
-        forceImmersive();
-      }, 30);
+        Immersive.on();
+        Immersive.setImmersive(true);
+      }, 30); // 👈 30ms Super Lock
     }
 
+    // Disable back
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
@@ -75,10 +110,14 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
       }
     );
 
+    // App State
     const subscription = AppState.addEventListener("change", (nextState) => {
       if (nextState === "active" && isFocused) {
         navigation.dispatch(
-          CommonActions.reset({ index: 0, routes: [{ name: "Home" }] })
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "Home" }],
+          })
         );
       }
     });
@@ -94,30 +133,6 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
     };
   }, [isFocused, navigation]);
 
-  // Modal muncul/hilang → segera kunci immersive
-  useEffect(() => {
-    forceImmersive();
-  }, [modalVisible]);
-
-  // Fokus screen berubah → kunci immersive
-  useEffect(() => {
-    if (isFocused) forceImmersive();
-  }, [isFocused]);
-
-  // Detect swipe events
-  const onSwipeFromEdge = (event: any) => {
-    if (
-      event.nativeEvent.translationY > 20 ||
-      event.nativeEvent.translationY < -20
-    ) {
-      showWarning();
-    }
-  };
-
-  const onSwipeStateChange = ({ nativeEvent }: any) => {
-    if (nativeEvent.state === 4) showWarning();
-  };
-
   return (
     <View style={styles.container}>
       <WebView
@@ -127,29 +142,23 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
           <ActivityIndicator size="large" style={styles.loading} />
         )}
         style={{ flex: 1 }}
-        onLoadStart={forceImmersive}
-        onLoadEnd={forceImmersive}
       />
 
-      {/* TOP EDGE */}
-      <PanGestureHandler
-        onGestureEvent={onSwipeFromEdge}
-        onHandlerStateChange={onSwipeStateChange}
-      >
-        <View style={styles.topEdge} />
-      </PanGestureHandler>
+      {/* 🔥 TOP SHIELD */}
+      <View
+        style={styles.topShield}
+        {...topShield.panHandlers}
+      />
 
-      {/* BOTTOM EDGE */}
-      <PanGestureHandler
-        onGestureEvent={onSwipeFromEdge}
-        onHandlerStateChange={onSwipeStateChange}
-      >
-        <View style={styles.bottomEdge} />
-      </PanGestureHandler>
+      {/* 🔥 BOTTOM SHIELD */}
+      <View
+        style={styles.bottomShield}
+        {...bottomShield.panHandlers}
+      />
 
-      {/* EMPTY MODAL (100% transparent) */}
+      {/* 🔥 EMPTY MODAL WARNING */}
       <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.blankModal} />
+        <View style={styles.modalOverlay} />
       </Modal>
     </View>
   );
@@ -159,24 +168,26 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   loading: { flex: 1, justifyContent: "center", alignItems: "center" },
 
-  topEdge: {
+  // Very thin shield (anti swipe)
+  topShield: {
     position: "absolute",
     top: 0,
-    height: 120,
+    height: 50,  // cukup untuk mencegah gesture OS
     width: "100%",
-    backgroundColor: "transparent",
+    zIndex: 9999,
   },
-  bottomEdge: {
+  bottomShield: {
     position: "absolute",
     bottom: 0,
-    height: 120,
+    height: 60,
     width: "100%",
-    backgroundColor: "transparent",
+    zIndex: 9999,
   },
 
-  blankModal: {
+  // Empty fullscreen modal (canvas kosong)
+  modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0)", // transparan penuh
+    backgroundColor: "transparent",
   },
 });
 

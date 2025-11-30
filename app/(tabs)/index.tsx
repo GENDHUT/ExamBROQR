@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../qr/HomeScreen';
 import BarcodeScannerScreen from '../qr/BarcodeScannerScreen';
 import CameraScreen from '../qr/CameraScreen';
-import WebViewScreen from '../qr/WebViewScreen';
+// import WebViewScreen from '../qr/WebViewScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -33,11 +33,11 @@ const AppNavigator: React.FC = () => {
         component={CameraScreen} 
         options={{ title: 'Camera View' }} 
       />
-      <Stack.Screen 
+      {/* <Stack.Screen 
         name="WebView" 
         component={WebViewScreen} 
         options={{ title: 'Open URL', headerShown:false}} 
-      />
+      /> */}
     </Stack.Navigator>
   );
 };

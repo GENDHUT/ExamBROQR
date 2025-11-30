@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, Button, Alert, Linking } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../(tabs)/index'; // Pastikan path-nya benar
+import { RootStackParamList } from '../(tabs)/index';
+import { router } from 'expo-router';
 
 type BarcodeScannerScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -27,7 +28,11 @@ const BarcodeScannerScreen: React.FC = () => {
   const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
     setScanned(true);
     if (data.startsWith('http')) {
-      navigation.navigate('WebView', { url: data });
+      // Redirect ke halaman webview terpisah
+      router.push({
+        pathname: '/webview',
+        params: { url: data }
+      });
     } else {
       Alert.alert('Barcode Scanned', `Type: ${type}\nData: ${data}`);
     }
