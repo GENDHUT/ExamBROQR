@@ -15,24 +15,49 @@ import { WebView } from "react-native-webview";
 import { router, useLocalSearchParams } from "expo-router";
 import Immersive from "react-native-immersive";
 import * as ScreenOrientation from "expo-screen-orientation";
+import * as ScreenCapture from "expo-screen-capture"; // 🛡️ ANTI SCREENSHOT
 
 const WebViewScreen: React.FC = () => {
   const { url } = useLocalSearchParams<{ url: string }>();
 
   const [verticalModalVisible, setVerticalModalVisible] = useState(false);
   const [horizontalAlertVisible, setHorizontalAlertVisible] = useState(false);
+  const [blocked, setBlocked] = useState(false); // 🛡️ DETEKSI SS / RECORD
 
   // ======================================================
-  // 🔥 LOCK ORIENTATION ALWAYS PORTRAIT (ANTI MANTUL)
+  // 🛡️ ANTI SCREENSHOT & RECORDING (ANDROID + iOS)
   // ======================================================
   useEffect(() => {
-    ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.PORTRAIT_UP
-    );
+    // Android: blok screenshot
+    ScreenCapture.preventScreenCaptureAsync();
+
+    // Listener screenshot
+    const screenshotSub = ScreenCapture.addScreenshotListener(() => {
+      setBlocked(true); // layar hitam
+      setTimeout(() => setBlocked(false), 2000);
+    });
+
+    // Listener recording
+    const recordingSub = ScreenCapture.addScreenRecordingListener((isRecording) => {
+      setBlocked(isRecording);
+    });
+
+    return () => {
+      ScreenCapture.allowScreenCaptureAsync();
+      screenshotSub.remove();
+      recordingSub.remove();
+    };
   }, []);
 
   // ======================================================
-  // 🔥 VERTICAL MODAL SWIPE WARNING (TOP & BOTTOM)
+  // 🔥 LOCK PORTRAIT
+  // ======================================================
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  }, []);
+
+  // ======================================================
+  // 🔥 VERTICAL WARNING
   // ======================================================
   const showVerticalWarning = () => {
     setVerticalModalVisible(true);
@@ -40,7 +65,7 @@ const WebViewScreen: React.FC = () => {
   };
 
   // ======================================================
-  // 🔥 HORIZONTAL ALERT (LEFT & RIGHT)
+  // 🔥 HORIZONTAL ALERT
   // ======================================================
   const showHorizontalAlert = () => {
     setHorizontalAlertVisible(true);
@@ -57,7 +82,7 @@ const WebViewScreen: React.FC = () => {
   };
 
   // ======================================================
-  // 🔥 SHIELDS CONFIG
+  // 🔥 SHIELDS CONFIGURATION
   // ======================================================
   const verticalShield = (onRelease?: () => void) =>
     PanResponder.create({
@@ -86,9 +111,7 @@ const WebViewScreen: React.FC = () => {
       },
     });
 
-  const topShield = useRef(
-    verticalShield(() => router.replace("/(tabs)"))
-  ).current;
+  const topShield = useRef(verticalShield(() => router.replace("/(tabs)"))).current;
   const bottomShield = useRef(verticalShield()).current;
   const leftShield = useRef(horizontalShield()).current;
   const rightShield = useRef(horizontalShield()).current;
@@ -111,13 +134,10 @@ const WebViewScreen: React.FC = () => {
     }
 
     // Disable Back Button
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      () => {
-        showVerticalWarning();
-        return true;
-      }
-    );
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+      showVerticalWarning();
+      return true;
+    });
 
     // Reset to home if minimized
     const subscription = AppState.addEventListener("change", (nextState) => {
@@ -139,6 +159,10 @@ const WebViewScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+
+      {/* 🛡️ LAYAR HITAM KETIKA SS/RECORD */}
+      {blocked && <View style={styles.blockedOverlay} />}
+
       <WebView
         source={{ uri: url || "https://example.com" }}
         startInLoadingState
@@ -160,18 +184,14 @@ const WebViewScreen: React.FC = () => {
       {/* 🔥 RIGHT SHIELD */}
       <View style={styles.rightShield} {...rightShield.panHandlers} />
 
-      {/* 🔥 HORIZONTAL ALERT (CENTER MESSAGE) */}
+      {/* 🔥 HORIZONTAL ALERT */}
       {horizontalAlertVisible && (
-        <Pressable
-          style={styles.alertBox}
-          onPress={dismissHorizontalAlert}
-        >
-          <View style={styles.alertContent}>
-          </View>
+        <Pressable style={styles.alertBox} onPress={dismissHorizontalAlert}>
+          <View style={styles.alertContent}></View>
         </Pressable>
       )}
 
-      {/* 🔥 VERTICAL EMPTY MODAL FOR TOP/BOTTOM SWIPE */}
+      {/* 🔥 VERTICAL SWIPE MODAL */}
       <Modal visible={verticalModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay} />
       </Modal>
@@ -183,7 +203,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   loading: { flex: 1, justifyContent: "center", alignItems: "center" },
 
-  // Anti-swipe thin shields
+  // 🛡️ OVERLAY HITAM
+  blockedOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    backgroundColor: "black",
+    zIndex: 999999,
+  },
+
+  // Shields
   topShield: {
     position: "absolute",
     top: 0,
@@ -213,7 +244,6 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
 
-  // Horizontal alert box in center
   alertBox: {
     position: "absolute",
     alignSelf: "center",
@@ -231,7 +261,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 
-  // Modal overlay for vertical swipe
   modalOverlay: {
     flex: 1,
     backgroundColor: "transparent",
