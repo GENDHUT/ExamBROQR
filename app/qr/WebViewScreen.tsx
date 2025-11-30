@@ -9,8 +9,6 @@ import {
   StatusBar,
   BackHandler,
   Modal,
-  Text,
-  TouchableOpacity,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import {
@@ -31,17 +29,20 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
   const isFocused = useIsFocused();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
 
-  // Show modal + auto close super cepat
-  const showWarning = (message: string) => {
-    setModalMessage(message);
+  // Flash modal super cepat (100 ms)
+  const showWarning = () => {
     setModalVisible(true);
+    setTimeout(() => setModalVisible(false), 20);
+  };
 
-    // Modal langsung hilang sangat cepat (100ms)
-    setTimeout(() => {
-      setModalVisible(false);
-    }, 100);
+  // Lock immersive function (lebih kuat & cepat)
+  const forceImmersive = () => {
+    if (Platform.OS === "android") {
+      Immersive.on();
+      Immersive.setImmersive(true);
+      StatusBar.setHidden(true);
+    }
   };
 
   // Hide tab bar
@@ -57,34 +58,27 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
     let immersiveInterval: NodeJS.Timer;
 
     if (Platform.OS === "android") {
-      Immersive.on();
-      Immersive.setImmersive(true); // 🔥 Hard lock immersive
-      StatusBar.setHidden(true);
+      // Awal masuk layar → langsung full immersive
+      forceImmersive();
 
-      // PAKSA immersive ON setiap 150ms
+      // Interval super cepat (30ms)
       immersiveInterval = setInterval(() => {
-        Immersive.on();
-        Immersive.setImmersive(true);
-      }, 150);
+        forceImmersive();
+      }, 30);
     }
 
-    // Disable back button
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
-        showWarning("Tombol kembali dinonaktifkan selama ujian!");
+        showWarning();
         return true;
       }
     );
 
-    // AppState listener
     const subscription = AppState.addEventListener("change", (nextState) => {
       if (nextState === "active" && isFocused) {
         navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: "Home" }],
-          })
+          CommonActions.reset({ index: 0, routes: [{ name: "Home" }] })
         );
       }
     });
@@ -100,21 +94,28 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
     };
   }, [isFocused, navigation]);
 
+  // Modal muncul/hilang → segera kunci immersive
+  useEffect(() => {
+    forceImmersive();
+  }, [modalVisible]);
+
+  // Fokus screen berubah → kunci immersive
+  useEffect(() => {
+    if (isFocused) forceImmersive();
+  }, [isFocused]);
+
   // Detect swipe events
   const onSwipeFromEdge = (event: any) => {
     if (
       event.nativeEvent.translationY > 20 ||
       event.nativeEvent.translationY < -20
     ) {
-      showWarning("Swipe tidak diizinkan saat ujian!");
+      showWarning();
     }
   };
 
-  // State change gesture — BACA SEBELUM OS BACA SWIPE
   const onSwipeStateChange = ({ nativeEvent }: any) => {
-    if (nativeEvent.state === 4) {
-      showWarning("Swipe tidak diizinkan saat ujian!");
-    }
+    if (nativeEvent.state === 4) showWarning();
   };
 
   return (
@@ -126,6 +127,8 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
           <ActivityIndicator size="large" style={styles.loading} />
         )}
         style={{ flex: 1 }}
+        onLoadStart={forceImmersive}
+        onLoadEnd={forceImmersive}
       />
 
       {/* TOP EDGE */}
@@ -144,20 +147,9 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({ route }) => {
         <View style={styles.bottomEdge} />
       </PanGestureHandler>
 
-      {/* FULLSCREEN WARNING MODAL */}
+      {/* EMPTY MODAL (100% transparent) */}
       <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <TouchableOpacity
-              style={styles.closeBtn}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeText}>✕</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.modalText}>{modalMessage}</Text>
-          </View>
-        </View>
+        <View style={styles.blankModal} />
       </Modal>
     </View>
   );
@@ -170,52 +162,22 @@ const styles = StyleSheet.create({
   topEdge: {
     position: "absolute",
     top: 0,
-    height: 120, // 🔥 perbesar area agar swipe OS tidak menang
+    height: 120,
     width: "100%",
     backgroundColor: "transparent",
   },
   bottomEdge: {
     position: "absolute",
     bottom: 0,
-    height: 120, // bawah juga amankan
+    height: 120,
     width: "100%",
     backgroundColor: "transparent",
   },
 
-  // MODAL
-  modalOverlay: {
+  blankModal: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalBox: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: "white",
-    borderRadius: 12,
-    alignItems: "center",
-    elevation: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    fontWeight: "600",
-    textAlign: "center",
-    marginTop: 10,
-    color: "#333",
-  },
-  closeBtn: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    padding: 5,
-  },
-  closeText: {
-    fontSize: 22,
-    fontWeight: "bold",
+    backgroundColor: "rgba(0,0,0,0)", // transparan penuh
   },
 });
 
 export default WebViewScreen;
-
-// fitur modal hilang
