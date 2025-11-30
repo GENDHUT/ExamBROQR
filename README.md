@@ -57,6 +57,20 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
   
 ## For Build
+1. Login ke Expo
+   ```bash
+      expo login
+   ```
+2. Install EAS CLI
+   ```bash
+   npm install -g eas-cli
+   ```
+   
+3. Inisialisasi EAS
+   ```bash
+   eas build:configure
+   ```
+   
 - eas build -p android --profile preview (app)
 - eas build -p android --profile production (aab)
 
