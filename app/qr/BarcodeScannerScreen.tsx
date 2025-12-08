@@ -1,22 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Alert, Linking } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../(tabs)/index';
 import { router } from 'expo-router';
+import CryptoJS from 'crypto-js';
 
-type BarcodeScannerScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'BarcodeScanner'
->;
+const SECRET_KEY = "MYSECRETKEY12345";
+
+// ===== AES DECRYPT FIX ====
+function decryptAES(base64Text: string) {
+  try {
+    const encrypted = CryptoJS.enc.Base64.parse(base64Text);
+    const key = CryptoJS.enc.Utf8.parse(SECRET_KEY);
+
+    const decrypted = CryptoJS.AES.decrypt(
+      CryptoJS.lib.CipherParams.create({ ciphertext: encrypted }),
+      key,
+      {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      }
+    );
+
+    const text = decrypted.toString(CryptoJS.enc.Utf8);
+    if (!text) return null;
+
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
+}
+
+// =====================================
 
 const BarcodeScannerScreen: React.FC = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
-  const [cameraType, setCameraType] = useState<'back' | 'front'>('back');
-
-  const navigation = useNavigation<BarcodeScannerScreenNavigationProp>();
 
   useEffect(() => {
     (async () => {
@@ -25,32 +43,54 @@ const BarcodeScannerScreen: React.FC = () => {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
+  const handleBarCodeScanned = ({ data }: { type: string; data: string }) => {
     setScanned(true);
-    if (data.startsWith('http')) {
-      // Redirect ke halaman webview terpisah
+
+    const decrypted = decryptAES(data);
+
+    if (decrypted) {
+
+      if (decrypted.expires) {
+        const now = Math.floor(Date.now() / 1000);
+        if (now > decrypted.expires) {
+          Alert.alert("QR Expired", "QR ini sudah tidak berlaku");
+          return;
+        }
+      }
+
+      if (decrypted.url) {
+        router.push({
+          pathname: "/webview",
+          params: { url: decrypted.url }
+        });
+        return;
+      }
+
+      Alert.alert("QR Invalid", "Format QR terenkripsi tidak valid.");
+      return;
+    }
+
+    // QR biasa
+    if (data.startsWith("http://") || data.startsWith("https://")) {
       router.push({
-        pathname: '/webview',
+        pathname: "/webview",
         params: { url: data }
       });
-    } else {
-      Alert.alert('Barcode Scanned', `Type: ${type}\nData: ${data}`);
+      return;
     }
+
+    Alert.alert("QR Data", data);
   };
 
   if (hasPermission === null) {
-    return (
-      <View style={styles.center}>
-        <Text>Requesting camera permission...</Text>
-      </View>
-    );
+    return <View style={styles.center}><Text>Meminta izin kamera...</Text></View>;
   }
-  
+
   if (hasPermission === false) {
     return (
       <View style={styles.center}>
-        <Text>No access to camera</Text>
-        <Button title="Open Settings" onPress={() => Linking.openSettings()} />
+        <Text>Tidak ada izin kamera</Text>
+        <Button title="Buka Pengaturan" onPress={() => Linking.openSettings()} />
       </View>
     );
   }
@@ -59,11 +99,11 @@ const BarcodeScannerScreen: React.FC = () => {
     <View style={styles.container}>
       <CameraView
         style={StyleSheet.absoluteFillObject}
-        facing={cameraType}
+        facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
       />
       {scanned && (
-        <Button title="Tap to Scan Again" onPress={() => setScanned(false)} />
+        <Button title="Scan Lagi" onPress={() => setScanned(false)} />
       )}
     </View>
   );

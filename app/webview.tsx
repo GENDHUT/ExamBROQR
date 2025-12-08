@@ -1,3 +1,4 @@
+// webview.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -22,26 +23,20 @@ const WebViewScreen: React.FC = () => {
   const [verticalModalVisible, setVerticalModalVisible] = useState(false);
   const [horizontalAlertVisible, setHorizontalAlertVisible] = useState(false);
 
-  // ======================================================
-  // 🔥 LOCK ORIENTATION ALWAYS PORTRAIT (ANTI MANTUL)
-  // ======================================================
+  
   useEffect(() => {
     ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT_UP
     );
   }, []);
 
-  // ======================================================
-  // 🔥 VERTICAL MODAL SWIPE WARNING (TOP & BOTTOM)
-  // ======================================================
+  
   const showVerticalWarning = () => {
     setVerticalModalVisible(true);
     setTimeout(() => setVerticalModalVisible(false), 10);
   };
 
-  // ======================================================
-  // 🔥 HORIZONTAL ALERT (LEFT & RIGHT)
-  // ======================================================
+
   const showHorizontalAlert = () => {
     setHorizontalAlertVisible(true);
 
@@ -56,10 +51,7 @@ const WebViewScreen: React.FC = () => {
     setHorizontalAlertVisible(false);
   };
 
-  // ======================================================
-  // 🔥 SHIELDS CONFIG
-  // ======================================================
-  const verticalShield = (onRelease?: () => void) =>
+   const verticalShield = (onRelease?: () => void) =>
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
@@ -93,10 +85,7 @@ const WebViewScreen: React.FC = () => {
   const leftShield = useRef(horizontalShield()).current;
   const rightShield = useRef(horizontalShield()).current;
 
-  // ======================================================
-  // 🔥 IMMERSIVE MODE SUPER LOCK
-  // ======================================================
-  useEffect(() => {
+   useEffect(() => {
     let immersiveInterval: NodeJS.Timeout;
 
     if (Platform.OS === "android") {
@@ -148,19 +137,14 @@ const WebViewScreen: React.FC = () => {
         style={{ flex: 1 }}
       />
 
-      {/* 🔥 TOP SHIELD */}
       <View style={styles.topShield} {...topShield.panHandlers} />
 
-      {/* 🔥 BOTTOM SHIELD */}
       <View style={styles.bottomShield} {...bottomShield.panHandlers} />
 
-      {/* 🔥 LEFT SHIELD */}
       <View style={styles.leftShield} {...leftShield.panHandlers} />
 
-      {/* 🔥 RIGHT SHIELD */}
       <View style={styles.rightShield} {...rightShield.panHandlers} />
 
-      {/* 🔥 HORIZONTAL ALERT (CENTER MESSAGE) */}
       {horizontalAlertVisible && (
         <Pressable
           style={styles.alertBox}
@@ -171,7 +155,6 @@ const WebViewScreen: React.FC = () => {
         </Pressable>
       )}
 
-      {/* 🔥 VERTICAL EMPTY MODAL FOR TOP/BOTTOM SWIPE */}
       <Modal visible={verticalModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay} />
       </Modal>
