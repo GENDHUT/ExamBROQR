@@ -6,7 +6,7 @@ import CryptoJS from 'crypto-js';
 
 const SECRET_KEY = "MYSECRETKEY12345";
 
-// ===== AES DECRYPT FIX ====
+// ===== AES DECRYPT ====
 function decryptAES(base64Text: string) {
   try {
     const encrypted = CryptoJS.enc.Base64.parse(base64Text);

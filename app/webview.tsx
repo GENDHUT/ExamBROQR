@@ -23,19 +23,37 @@ const WebViewScreen: React.FC = () => {
   const [verticalModalVisible, setVerticalModalVisible] = useState(false);
   const [horizontalAlertVisible, setHorizontalAlertVisible] = useState(false);
 
-  
+  // 🔥 Anti Auto-Translate Script
+  const antiTranslateJS = `
+    document.documentElement.setAttribute('translate','no');
+    document.body.setAttribute('translate','no');
+
+    const elements = document.querySelectorAll('*');
+    elements.forEach(el => {
+      el.classList.add('notranslate');
+      el.setAttribute('translate','no');
+    });
+
+    const scripts = document.querySelectorAll('script');
+    scripts.forEach(s => {
+      if (s.src && s.src.includes('translate')) {
+        s.remove();
+      }
+    });
+
+    true;
+  `;
+
   useEffect(() => {
     ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT_UP
     );
   }, []);
 
-  
   const showVerticalWarning = () => {
     setVerticalModalVisible(true);
     setTimeout(() => setVerticalModalVisible(false), 10);
   };
-
 
   const showHorizontalAlert = () => {
     setHorizontalAlertVisible(true);
@@ -51,7 +69,7 @@ const WebViewScreen: React.FC = () => {
     setHorizontalAlertVisible(false);
   };
 
-   const verticalShield = (onRelease?: () => void) =>
+  const verticalShield = (onRelease?: () => void) =>
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
@@ -85,7 +103,7 @@ const WebViewScreen: React.FC = () => {
   const leftShield = useRef(horizontalShield()).current;
   const rightShield = useRef(horizontalShield()).current;
 
-   useEffect(() => {
+  useEffect(() => {
     let immersiveInterval: NodeJS.Timeout;
 
     if (Platform.OS === "android") {
@@ -99,7 +117,6 @@ const WebViewScreen: React.FC = () => {
       }, 30);
     }
 
-    // Disable Back Button
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
@@ -108,7 +125,6 @@ const WebViewScreen: React.FC = () => {
       }
     );
 
-    // Reset to home if minimized
     const subscription = AppState.addEventListener("change", (nextState) => {
       if (nextState === "active") {
         router.replace("/(tabs)");
@@ -130,6 +146,11 @@ const WebViewScreen: React.FC = () => {
     <View style={styles.container}>
       <WebView
         source={{ uri: url || "https://example.com" }}
+
+        // anti translate
+        injectedJavaScript={antiTranslateJS}
+        javaScriptEnabled={true}
+
         startInLoadingState
         renderLoading={() => (
           <ActivityIndicator size="large" style={styles.loading} />
@@ -138,20 +159,13 @@ const WebViewScreen: React.FC = () => {
       />
 
       <View style={styles.topShield} {...topShield.panHandlers} />
-
       <View style={styles.bottomShield} {...bottomShield.panHandlers} />
-
       <View style={styles.leftShield} {...leftShield.panHandlers} />
-
       <View style={styles.rightShield} {...rightShield.panHandlers} />
 
       {horizontalAlertVisible && (
-        <Pressable
-          style={styles.alertBox}
-          onPress={dismissHorizontalAlert}
-        >
-          <View style={styles.alertContent}>
-          </View>
+        <Pressable style={styles.alertBox} onPress={dismissHorizontalAlert}>
+          <View style={styles.alertContent}></View>
         </Pressable>
       )}
 
@@ -165,8 +179,6 @@ const WebViewScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   loading: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  // Anti-swipe thin shields
   topShield: {
     position: "absolute",
     top: 0,
@@ -195,8 +207,6 @@ const styles = StyleSheet.create({
     height: "100%",
     zIndex: 9999,
   },
-
-  // Horizontal alert box in center
   alertBox: {
     position: "absolute",
     alignSelf: "center",
@@ -209,12 +219,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   alertContent: {
     paddingHorizontal: 10,
   },
-
-  // Modal overlay for vertical swipe
   modalOverlay: {
     flex: 1,
     backgroundColor: "transparent",
