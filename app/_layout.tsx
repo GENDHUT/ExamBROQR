@@ -3,8 +3,11 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import 'react-native-reanimated';
+
+import { AppState, AppStateStatus } from 'react-native';
+import * as Linking from 'expo-linking';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -16,6 +19,32 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+
+  // ============================
+  // AUTO-RELAUNCH GLOBAL (user tidak bisa out aplikasi) belum selesai
+  // ============================
+  const appState = useRef(AppState.currentState);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (nextState: AppStateStatus) => {
+      const isLeavingApp =
+        appState.current === "active" &&
+        nextState !== "active";
+
+      if (isLeavingApp) {
+        // sedikit delay supaya tidak bentrok transition OS
+        setTimeout(() => {
+          Linking.openURL("myapp://home");
+        }, 200);
+      }
+
+      appState.current = nextState;
+    });
+
+    return () => sub.remove();
+  }, []);
+  // ============================
+
 
   useEffect(() => {
     if (loaded) {
