@@ -74,4 +74,6 @@ Join our community of developers creating universal apps.
 - eas build -p android --profile preview (app)
 - eas build -p android --profile production (aab)
 
+## DOWNLOAD APP
+[Expo]([https://expo.d](https://github.com/GENDHUT/ExamBROQR/releases)
 
