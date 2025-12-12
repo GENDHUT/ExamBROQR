@@ -1,79 +1,136 @@
-# Welcome to your Expo app 👋
+---
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# 📘 **ExamBrow — Aplikasi Ujian Anti-Cheat Modern**
 
-## Get started
+Sistem ujian digital dengan keamanan tinggi, anti-cheat, dan monitoring real-time.
 
-1. Install dependencies
+![Badge](https://img.shields.io/badge/ExamBrow-AntiCheat-blue?style=for-the-badge)
+![Expo](https://img.shields.io/badge/Expo-49+-black?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Android-Supported-green?style=for-the-badge)
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 🚀 Tentang ExamBrow
 
-   ```bash
-    npx expo start
-   ```
-   -If you using usb debug
-    ```bash
-    adb reverse tcp:8081 tcp:8081
-    npx expo start
-   ```
-   adb reverse tcp:8081 tcp:8081
+**ExamBrow** adalah aplikasi ujian berbasis **Expo/React Native** yang dirancang untuk mencegah kecurangan selama ujian.
+Aplikasi ini memastikan peserta **tetap berada di dalam aplikasi**, memblokir perpindahan ke aplikasi lain, serta mendukung **monitoring realtime** sehingga pengawas dapat memantau peserta secara langsung.
 
+Digunakan oleh sekolah, kampus, lembaga pelatihan, dan platform assessment digital.
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🛡️ Fitur Utama
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 🔒 Anti–Cheat
 
-## Get a fresh project
+* Tidak dapat keluar dari aplikasi selama ujian
+* Deteksi tombol Home & Recent Apps
+* Blokir screenshot dan screen recording
+* Mode Secure Exam aktif otomatis
+* Peringatan & kick otomatis jika mencoba cheat
 
-When you're ready, run:
+### 📡 Monitoring Real-time
+
+* Pantau aktivitas peserta secara langsung
+* Status online/offline/keluar aplikasi
+* Log lengkap aktivitas peserta selama ujian
+
+### 📝 Sistem Ujian
+
+* Soal pilihan ganda & essay
+* Timer ujian
+* Auto-submit saat waktu habis
+* Validasi sesi & token ujian
+
+---
+
+# ⚙️ Instalasi & Menjalankan Aplikasi
+
+## 1️⃣ Clone Repository
 
 ```bash
-npm run reset-project
+git clone https://github.com/USERNAME/exambrow.git
+cd exambrow
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 2️⃣ Install Dependencies
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## 3️⃣ Menjalankan App
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Normal:
 
-## Join the community
+```bash
+npx expo start
+```
 
-Join our community of developers creating universal apps.
+### Jika USB Debug:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-  
-## For Build
-1. Login ke Expo
-   ```bash
-      expo login
-   ```
-2. Install EAS CLI
-   ```bash
-   npm install -g eas-cli
-   ```
-   
-3. Inisialisasi EAS
-   ```bash
-   eas build:configure
-   ```
-   
-- eas build -p android --profile preview (app)
-- eas build -p android --profile production (aab)
+```bash
+adb reverse tcp:8081 tcp:8081
+npx expo start
+```
 
-## DOWNLOAD APP
-[DOWNLOAD](https://expo.d](https://github.com/GENDHUT/ExamBROQR/releases)
+---
 
+# 🛠️ Build APK/AAB via EAS
+
+## Login
+
+```bash
+expo login
+```
+
+## Install EAS CLI
+
+```bash
+npm install -g eas-cli
+```
+
+## Konfigurasi
+
+```bash
+eas build:configure
+```
+
+## Build APK (Preview)
+
+```bash
+eas build -p android --profile preview
+```
+
+## Build AAB (Production)
+
+```bash
+eas build -p android --profile production
+```
+
+---
+
+# 📥 **DOWNLOAD APLIKASI**
+
+Klik tombol di bawah untuk mengunduh versi terbaru:
+
+<p align="center">
+  <a href="https://github.com/GENDHUT/ExamBROQR/releases">
+    <img src="https://img.shields.io/badge/DOWNLOAD%20APP-Click%20Here-brightgreen?style=for-the-badge" />
+  </a>
+</p>
+
+---
+
+# 🤝 Kontribusi
+
+Kontribusi sangat diterima!
+Laporkan bug atau request fitur melalui tab **Issues**.
+
+---
+
+# ⭐ Dukung Project Ini
+
+Jika bermanfaat, jangan lupa beri **⭐ star** pada repositori GitHub!
+
+---
