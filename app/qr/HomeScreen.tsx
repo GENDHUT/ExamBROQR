@@ -13,21 +13,26 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Container Row */}
+
+      {/* ===== HEADER ===== */}
+      <Text style={styles.title}>WELCOME</Text>
+
+      {/* ===== MENU ROW ===== */}
       <View style={styles.rowContainer}>
         
-        {/* Elemen 1 — Scan Barcode */}
+        {/* Scan Barcode */}
         <TouchableOpacity 
           style={styles.menuBox}
           onPress={() => navigation.navigate('BarcodeScanner')}
+          activeOpacity={0.7}
         >
-          <Ionicons name="qr-code-outline" size={40} color="#333" />
-          <Text style={styles.menuText}>Scan Barcode Ujian</Text>
+          <Ionicons name="qr-code-outline" size={32} color="#222" />
+          <Text style={styles.menuText}>Scan Barcode</Text>
         </TouchableOpacity>
 
-        {/* Elemen 2 — Dummy */}
-        <TouchableOpacity style={styles.menuBox}>
-          <Ionicons name="document-text-outline" size={40} color="#333" />
+        {/* Dummy */}
+        <TouchableOpacity style={styles.menuBox} activeOpacity={0.7}>
+          <Ionicons name="document-text-outline" size={32} color="#222" />
           <Text style={styles.menuText}>Dummy Menu</Text>
         </TouchableOpacity>
 
@@ -38,37 +43,46 @@ const HomeScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    backgroundColor: "#f5f5f5"
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    paddingTop: 80,
+    alignItems: "center",
+  },
+
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    letterSpacing: 2,
+    marginBottom: 40,
+    color: "#222",
   },
 
   rowContainer: {
     flexDirection: "row",
-    gap: 20,
+    gap: 30,
   },
 
   menuBox: {
-    width: 140,
-    height: 140,
-    backgroundColor: "#fff",
-    borderRadius: 15,
+    width: 110,
+    height: 110,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 5, 
+
+    // TRANSPARAN
+    backgroundColor: "transparent",
+
+    // GARIS TIPIS BIAR TETAP KELIHATAN
+    borderWidth: 1.5,
+    borderColor: "#ccc",
   },
 
   menuText: {
-    marginTop: 10,
+    marginTop: 8,
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
-    color: "#333",
+    color: "#222",
   }
 });
 
